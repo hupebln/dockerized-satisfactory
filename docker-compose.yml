@@ -1,0 +1,11 @@
+services:
+  satisfactory:
+    build: .
+    ports:
+      - "15777:15777"
+      - "15000:15000"
+      - "7777:7777"
+    volumes:
+      - type: bind
+        source: ./steam
+        target: /home/steam/.steam/
