@@ -2,10 +2,10 @@ services:
   satisfactory:
     build: .
     ports:
-      - "15777:15777"
-      - "15000:15000"
-      - "7777:7777"
+      - "15777:15777/udp"
+      - "15000:15000/udp"
+      - "7777:7777/udp"
     volumes:
       - type: bind
         source: ./steam
-        target: /home/steam/.steam/
+        target: /home/steam
