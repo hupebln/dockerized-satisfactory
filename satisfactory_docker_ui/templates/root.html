@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Satisfactory{% endblock %}
+
+{% block header %}
+  <meta http-equiv="refresh" content="20" >
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <h3>stats</h3>
+      <form action="" method="POST">
+        {% if container_info.get("State", {}).get("Running") %}
+        <p>Started at: {{ container_info.get("State", {}).get("StartedAt") }}</p>
+        <button id="restartButton" type="button" class="btn btn-warning">Restart</button>
+        <button id="stopButton" type="button" class="btn btn-danger">Stop</button>
+        {% else %}
+        <button id="startButton" type="button" class="btn btn-warning">Start</button>
+        {% endif %}
+      </form>
+    </div>
+    <div class="col-md-9">
+      <div class="row">
+        <h3>container logs</h3>
+        <div class="overflow-auto" style="height: 600px">
+          {% for line in logs|reverse %}
+          <small>{{ line }}</small><br>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+  const Url='/actions';
+  $('#restartButton').click(function() {
+    $.post(Url, {action: "restart"});
+  });
+  $('#stopButton').click(function() {
+    $.post(Url, {action: "stop"});
+  });
+  $('#startButton').click(function() {
+    $.post(Url, {action: "start"});
+  });
+</script>
+{% endblock %}

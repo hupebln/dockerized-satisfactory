@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "dockerized-satisfactory-ui"
+version = "0.1.0"
+description = "Simple UI to manage the Satisfactory Container"
+authors = ["Christian Schirge <11520417+hupebln@users.noreply.github.com>"]
+license = "MIT"
+packages = [
+    { include = "satisfactory_docker_ui"},
+]
+#include = [
+#    "templates"
+#]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask = "^2.0.2"
+Flask-Login = "^0.5.0"
+SQLAlchemy = "^1.4.26"
+psycopg2 = "^2.9.1"
+Flask-WTF = "^0.15.1"
+docker = "^5.0.3"
+gunicorn = "^20.1.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
