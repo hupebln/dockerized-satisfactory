@@ -1,6 +1,10 @@
 services:
   satisfactory:
-    build: .
+    container_name: ${HOSTNAME_SERVER}
+    hostname: ${HOSTNAME_SERVER}
+    build:
+      context: .
+      dockerfile: dockerfiles/server.dockerfile
     ports:
       - "15777:15777/udp"
       - "15000:15000/udp"
@@ -9,3 +13,39 @@ services:
       - type: bind
         source: ./steam
         target: /home/steam
+  db:
+    container_name: ${HOSTNAME_POSTGRES}
+    hostname: ${HOSTNAME_POSTGRES}
+    image: postgres:latest
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "pg_isready -U $$POSTGRES_USER" ]
+      timeout: 20s
+      retries: 10
+  ui:
+    container_name: ${HOSTNAME_UI}
+    hostname: ${HOSTNAME_UI}
+    build:
+      context: .
+      dockerfile: dockerfiles/docker_ui.dockerfile
+    ports:
+      - "5000:5000/tcp"
+    volumes:
+      - type: bind
+        source: ${DOCKER_SOCKET}
+        target: /var/run/docker.sock
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - HOSTNAME_POSTGRES=${HOSTNAME_POSTGRES}
+      - HOSTNAME_SERVER=${HOSTNAME_SERVER}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - FLASK_SECRET=${FLASK_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
