@@ -33,7 +33,13 @@ app.register_blueprint(blueprint=auth, url_prefix='/auth')
 def load_user(user_id):
     Session = get_session()
     session = Session()
-    return session.query(User).get(user_id)
+    
+    try:
+        user = session.query(User).get(user_id)
+    finally:
+        session.close()
+
+    return user
 
 
 @app.route("/", methods=["GET"])

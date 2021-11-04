@@ -39,7 +39,12 @@ def login():
     if form.validate_on_submit():
         Session = get_session()
         session = Session()
-        user = session.query(User).filter_by(name=username).first()
+        
+        try:
+            user = session.query(User).filter_by(name=username).first()
+        finally:
+            session.close()
+
         if user and user.verify_password(password):
             login_user(user)
             return redirect(url_for("root"))

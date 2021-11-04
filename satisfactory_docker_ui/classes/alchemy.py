@@ -41,12 +41,17 @@ def ensure_admin_user():
     Session = get_session()
     session = Session()
 
-    if password and not session.query(User).filter_by(name="admin").first():
-        admin = User(username="admin", password=password)
-        session.add(admin)
-        session.commit()
+    try:
+        if password and not session.query(User).filter_by(name="admin").first():
+            admin = User(username="admin", password=password)
+            session.add(admin)
+            session.commit()
 
-    if session.query(User).filter_by(name="admin").first():
+        user = session.query(User).filter_by(name="admin").first()
+    finally:
+        session.close()
+
+    if user:
         return True
 
     return False
