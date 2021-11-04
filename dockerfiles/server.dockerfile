@@ -26,4 +26,4 @@ USER steam
 CMD steamcmd +login anonymous +force_install_dir SatisfactoryDedicatedServer +app_update 1690800 +quit && \
     echo "wait 5 seconds" && \
     sleep 5 && \
-    /home/steam/.steam/steamcmd/SatisfactoryDedicatedServer/FactoryServer.sh
+    /home/steam/.steam/steamcmd/SatisfactoryDedicatedServer/FactoryServer.sh -multihome=$(hostname -i) -NOSTEAM
