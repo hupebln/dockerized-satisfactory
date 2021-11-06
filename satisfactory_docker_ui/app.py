@@ -1,7 +1,8 @@
 import os
+import glob
 import logging
 
-from flask import render_template, request
+from flask import render_template, request, send_file
 from flask_login import login_required, LoginManager
 from docker import from_env
 
@@ -75,6 +76,28 @@ def actions():
         app.logger.info("ACTION TRIGGERED: %s", action)
 
     return ""
+
+
+@app.route("/savegame", methods=["GET", "POST"])
+@login_required
+def savegame():
+    if request.method == "GET":
+        savegame_path = os.getenv("SAVEGAME_PATH")
+        if not savegame_path:
+            return "No SAVEGAME_PATH found", 501
+
+        if not os.path.exists(savegame_path):
+            return "Given path from SAVEGAME_PATH doesn't exist.", 501
+
+        list_files = [
+            save_file
+            for save_file in glob.glob(os.path.join(savegame_path, '*'))
+            if os.path.isfile(save_file)
+        ]
+
+        latest_file = max(list_files, key=os.path.getctime)
+
+        return send_file(latest_file, as_attachment=True, download_name="SaveGame.sav")
 
 
 if __name__ == "__main__":
