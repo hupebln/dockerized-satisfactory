@@ -10,16 +10,25 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-3">
-      <h3>stats</h3>
-      <form action="" method="POST">
-        {% if container_info.get("State", {}).get("Running") %}
+      {% if container_info.get("State", {}).get("Running") %}
+      <div class="row">
+        <h3>stats</h3>
         <p>Started at: {{ container_info.get("State", {}).get("StartedAt") }}</p>
+      </div>
+      {% endif %}
+      <div class="row">
+        <h3>actions</h3>
+      {% if container_info.get("State", {}).get("Running") %}
         <button id="restartButton" type="button" class="btn btn-warning">Restart</button>
         <button id="stopButton" type="button" class="btn btn-danger">Stop</button>
-        {% else %}
+      {% else %}
         <button id="startButton" type="button" class="btn btn-warning">Start</button>
-        {% endif %}
-      </form>
+      {% endif %}
+      </div>
+      <div class="row">
+        <h3>savegame</h3>
+        <button id="saveGameDownload" type="button" class="btn btn-warning">Download SaveGame</button>
+      </div>
     </div>
     <div class="col-md-9">
       <div class="row">
@@ -37,13 +46,22 @@
 <script>
   const Url='/actions';
   $('#restartButton').click(function() {
-    $.post(Url, {action: "restart"});
+      $.post(Url, {action: "restart"});
+      alert("Restarting Docker Container");
+      location.reload();
   });
   $('#stopButton').click(function() {
-    $.post(Url, {action: "stop"});
+      $.post(Url, {action: "stop"});
+      alert("Stopping Docker Container");
+      location.reload();
   });
   $('#startButton').click(function() {
-    $.post(Url, {action: "start"});
+      $.post(Url, {action: "start"});
+      alert("Starting Docker Container");
+      location.reload();
+  });
+  $('#saveGameDownload').click(function() {
+      window.location.href = "/savegame";
   });
 </script>
 {% endblock %}
