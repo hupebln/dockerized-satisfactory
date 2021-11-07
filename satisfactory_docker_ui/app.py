@@ -2,13 +2,14 @@ import os
 import glob
 import logging
 
-from flask import render_template, request, send_file
+from flask import render_template, request, send_file, redirect, flash
 from flask_login import login_required, LoginManager
 from docker import from_env
 
 from satisfactory_docker_ui import app
 from satisfactory_docker_ui.auth import auth
 from satisfactory_docker_ui.classes.alchemy import get_session, User, ensure_admin_user
+from satisfactory_docker_ui.classes.savegame import SaveGameHeader
 
 logger = logging.getLogger(__name__)
 
@@ -81,23 +82,53 @@ def actions():
 @app.route("/savegame", methods=["GET", "POST"])
 @login_required
 def savegame():
+    savegame_path = os.getenv("SAVEGAME_PATH")
+
+    list_files = [
+        save_file
+        for save_file in glob.glob(os.path.join(savegame_path, '*'))
+        if os.path.isfile(save_file)
+    ]
+
+    latest_file = max(list_files, key=os.path.getmtime)
+    app.logger.error(latest_file)
+
     if request.method == "GET":
-        savegame_path = os.getenv("SAVEGAME_PATH")
         if not savegame_path:
             return "No SAVEGAME_PATH found", 501
 
         if not os.path.exists(savegame_path):
             return "Given path from SAVEGAME_PATH doesn't exist.", 501
 
-        list_files = [
-            save_file
-            for save_file in glob.glob(os.path.join(savegame_path, '*'))
-            if os.path.isfile(save_file)
-        ]
-
-        latest_file = max(list_files, key=os.path.getctime)
-
         return send_file(latest_file, as_attachment=True, download_name="SaveGame.sav")
+
+    if request.method == "POST":
+        if "file" not in request.files:
+            flash("No file part")
+            return redirect("/")
+        file = request.files["file"]
+        if file.filename == '':
+            flash("No selected file")
+            return redirect("/")
+
+        uploaded_content = file.read()
+
+        old_header = SaveGameHeader(save_file=latest_file)
+        new_header = SaveGameHeader(save_bytes=uploaded_content)
+
+        if not old_header.build_version == new_header.build_version:
+            flash("Build version doesn't match")
+            return redirect("/")
+
+        if not old_header.session_name == new_header.session_name:
+            flash("Session name doesn't match")
+            return redirect("/")
+
+        if file:
+            with open(latest_file, 'wb') as latest_save_file:
+                latest_save_file.write(uploaded_content)
+            flash("file uploaded successfully")
+            return redirect("/")
 
 
 if __name__ == "__main__":

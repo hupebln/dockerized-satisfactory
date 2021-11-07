@@ -28,6 +28,12 @@
       <div class="row">
         <h3>savegame</h3>
         <button id="saveGameDownload" type="button" class="btn btn-warning">Download SaveGame</button>
+        {% if not container_info.get("State", {}).get("Running") %}
+        <button id="saveGameUpload" type="button" class="btn btn-danger">Upload SaveGame</button>
+        <form action="/savegame" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" id="uploadSaveFile" style="display:none;" />
+        </form>
+        {% endif %}
       </div>
     </div>
     <div class="col-md-9">
@@ -62,6 +68,12 @@
   });
   $('#saveGameDownload').click(function() {
       window.location.href = "/savegame";
+  });
+  $('#saveGameUpload').click(function () {
+      $('#uploadSaveFile').click();
+  });
+  $('#uploadSaveFile').change(function() {
+      this.form.submit();
   });
 </script>
 {% endblock %}
